@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""JARVIS — Personal AI Assistant"""
+"""JARVIS — Personal AI Assistant (Ollama local)"""
 import os
 import sys
 import asyncio
@@ -8,27 +8,37 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def check_setup():
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        print("\n[JARVIS] Chave da API não encontrada!")
-        print("1. Copie o arquivo .env.example para .env")
-        print("2. Adicione sua ANTHROPIC_API_KEY")
-        print("3. Execute novamente\n")
-        sys.exit(1)
-
-
 async def startup():
     from jarvis.memory.db import init
     await init()
 
+    from jarvis.brain.ai import check_ollama, list_models
+    if not await check_ollama():
+        print("\n" + "="*50)
+        print("  OLLAMA NÃO ESTÁ RODANDO!")
+        print("="*50)
+        print("\n1. Baixe o Ollama em: https://ollama.com/download")
+        print("2. Instale e abra o Ollama")
+        print("3. Abra um terminal e rode:")
+        print("   ollama pull llama3.1:8b")
+        print("4. Inicie o JARVIS novamente\n")
+        input("Pressione Enter para sair...")
+        sys.exit(1)
+
+    models = await list_models()
+    model = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+    if models and not any(model in m for m in models):
+        print(f"\n⚠ Modelo '{model}' não encontrado.")
+        print(f"Modelos disponíveis: {', '.join(models)}")
+        print(f"\nRode: ollama pull {model}\n")
+        input("Pressione Enter para sair...")
+        sys.exit(1)
+
+    print(f"[JARVIS] Ollama OK — modelo: {model}")
+
 
 def main():
-    check_setup()
-
-    # Initialize database
     asyncio.run(startup())
-
-    # Launch GUI
     from jarvis.gui.window import JarvisWindow
     app = JarvisWindow()
     app.mainloop()
