@@ -31,8 +31,8 @@ class JarvisWindow(ctk.CTk):
         self._start_wake_word()
         self._schedule_update_check()
 
-        # Start hidden
-        self.withdraw()
+        # Start visible
+        self._visible = True
 
     # ── UI ────────────────────────────────────────────────────────
 
