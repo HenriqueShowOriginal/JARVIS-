@@ -1,77 +1,78 @@
-# JARVIS — AI Stream Assistant
+# JARVIS — Assistente Pessoal de IA
 
-IA adaptável para streams ao vivo na Twitch, com voz, moderação automática, jogos e inteligência que aprende com o streamer.
+Pressione **Alt+Space** (ou fale "Jarvis") — a janela aparece. Peça qualquer coisa. O JARVIS executa.
 
-## Funcionalidades
+## O que ele faz
 
-- **Chat Inteligente** — Responde menções e perguntas usando Claude AI
-- **TTS (Voz)** — Fala respostas em tempo real com vozes neurais
-- **Moderação Automática** — Detecta spam, caps, linguagem inapropriada
-- **Trivia** — Mini-jogo de perguntas e respostas no chat
-- **Auto-aprendizado** — Aprende tópicos, preferências e contexto da stream
-- **Eventos** — Reage a follows, subs, raids e bits
+| Capacidade | Exemplos |
+|------------|----------|
+| **Abre apps** | "Abre o Spotify", "Abre o VS Code" |
+| **Navega na web** | "Pesquisa X no Google", "Abre o YouTube" |
+| **Controla o PC** | "Volume 50%", "Tira um print da tela" |
+| **Cria arquivos** | "Cria um arquivo de ideias no desktop" |
+| **Lê arquivos** | "Lê o arquivo config.txt" |
+| **Executa comandos** | "Quanto espaço tem no disco?" |
+| **Lembra coisas** | "Lembra que minha pasta de projetos é C:\Projetos" |
+| **Se auto-atualiza** | Baixa melhorias automaticamente do GitHub |
 
 ## Instalação
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/henriqueshoworiginal/jarvis-
-cd jarvis-
+# 1. Clone
+git clone https://github.com/HenriqueShowOriginal/JARVIS-
+cd JARVIS-
 
-# 2. Instale as dependências
+# 2. Instale dependências
 pip install -r requirements.txt
 
-# 3. Configure o ambiente
+# 3. Configure
 cp .env.example .env
-# Edite o .env com suas chaves
+# Edite o .env — só precisa da ANTHROPIC_API_KEY obrigatoriamente
 
-# 4. Inicie o JARVIS
+# 4. Inicie
 python main.py
 ```
 
-## Configuração (.env)
+## Configuração mínima (.env)
 
-| Variável | Descrição |
-|----------|-----------|
-| `ANTHROPIC_API_KEY` | Chave da API do Claude (anthropic.com) |
-| `TWITCH_BOT_TOKEN` | Token OAuth do bot (twitchapps.com/tmi) |
-| `TWITCH_CLIENT_ID` | Client ID do app Twitch |
-| `TWITCH_BOT_NICK` | Nome do bot na Twitch |
-| `TWITCH_CHANNELS` | Canal(is) para monitorar |
-| `TTS_VOICE` | Voz TTS (padrão: pt-BR-FranciscaNeural) |
-| `STREAMER_NAME` | Seu nome |
-| `AUTO_MODERATION` | Ativar moderação automática (true/false) |
+```env
+ANTHROPIC_API_KEY=sk-ant-...   # obrigatório — anthropic.com
+USER_NAME=SeuNome              # como o JARVIS te chama
+```
 
-## Comandos do Chat
+## Atalhos e ativação
 
-| Comando | Descrição |
-|---------|-----------|
-| `!jarvis <pergunta>` | Faz uma pergunta ao JARVIS |
-| `!trivia [categoria]` | Inicia uma rodada de trivia |
-| `!resposta <resposta>` | Responde à trivia ativa |
-| `!pular` | Pula a trivia atual |
-| `!ranking` | Mostra o ranking de trivia |
-| `!voz <tipo>` | Muda a voz (mods) |
-| `!contexto <texto>` | Define contexto da stream (mods) |
-| `!aprenda <info>` | Ensina algo ao JARVIS (broadcaster) |
-| `@jarvis <mensagem>` | Menciona o JARVIS diretamente |
+- **Alt+Space** — abre/fecha a janela
+- **"Jarvis"** (falar) — abre e já começa a ouvir
+- **Enter** — envia mensagem
+- **Shift+Enter** — nova linha
+- **🎤** — gravar por voz manualmente
 
-## Vozes Disponíveis
+## Memória inteligente (economia de espaço)
 
-- `pt-BR-feminino` — Voz feminina brasileira
-- `pt-BR-masculino` — Voz masculina brasileira
-- `en-US-feminino` — Voz feminina americana
-- `en-US-masculino` — Voz masculina americana
-- `jarvis` — Voz estilo JARVIS clássico
+O banco de dados é **SQLite ultra-leve**:
+- Máximo 500 mensagens guardadas
+- Mensagens antigas são comprimidas em resumos automaticamente
+- Só os últimos 50 comportamentos aprendidos ficam guardados
+- **Tamanho esperado: < 5MB mesmo após meses de uso**
 
-## Arquitetura
+## Estrutura
 
 ```
-src/
-├── ai/           # Cérebro do JARVIS (Claude AI)
-├── twitch/       # Bot da Twitch
-├── tts/          # Síntese de voz
-├── moderation/   # Moderação automática
-├── games/        # Trivia e jogos
-└── memory/       # Banco de dados e aprendizado
+jarvis/
+├── brain/ai.py          ← Claude AI com tools (loop agente)
+├── gui/window.py        ← Janela flutuante moderna
+├── voice/listener.py    ← Wake word + STT
+├── voice/tts.py         ← Voz sintetizada (edge-tts)
+├── tools/pc_tools.py    ← Controle do PC
+├── memory/db.py         ← SQLite leve + auto-compressão
+└── updater/updater.py   ← Auto-atualização via GitHub
 ```
+
+## Auto-atualização
+
+O JARVIS verifica automaticamente por novas versões a cada hora. Quando encontrar, avisa no chat:
+
+> "Nova versão disponível. Digite 'atualizar' para instalar."
+
+O processo baixa o código mais recente, instala dependências e reinicia sozinho.

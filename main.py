@@ -1,44 +1,37 @@
 #!/usr/bin/env python3
-"""JARVIS - AI Stream Assistant"""
-
+"""JARVIS — Personal AI Assistant"""
 import os
 import sys
+import asyncio
 from dotenv import load_dotenv
-from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
 
 load_dotenv()
 
-console = Console()
 
-
-def check_env():
-    required = ["ANTHROPIC_API_KEY", "TWITCH_BOT_TOKEN", "TWITCH_CHANNELS"]
-    missing = [k for k in required if not os.getenv(k)]
-    if missing:
-        console.print(f"[red]Variáveis de ambiente faltando: {', '.join(missing)}[/red]")
-        console.print("[yellow]Copie .env.example para .env e preencha os valores.[/yellow]")
+def check_setup():
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        print("\n[JARVIS] Chave da API não encontrada!")
+        print("1. Copie o arquivo .env.example para .env")
+        print("2. Adicione sua ANTHROPIC_API_KEY")
+        print("3. Execute novamente\n")
         sys.exit(1)
 
 
+async def startup():
+    from jarvis.memory.db import init
+    await init()
+
+
 def main():
-    console.print(Panel(
-        Text("JARVIS - AI Stream Assistant", justify="center", style="bold cyan"),
-        subtitle="Powered by Claude AI",
-        border_style="cyan"
-    ))
+    check_setup()
 
-    check_env()
+    # Initialize database
+    asyncio.run(startup())
 
-    console.print("[green]✓ Configuração OK[/green]")
-    console.print(f"[cyan]Canal(is): {os.getenv('TWITCH_CHANNELS')}[/cyan]")
-    console.print(f"[cyan]TTS: {os.getenv('TTS_ENABLED', 'true')}[/cyan]")
-    console.print(f"[cyan]Moderação: {os.getenv('AUTO_MODERATION', 'true')}[/cyan]")
-    console.print("[yellow]Iniciando bot...[/yellow]\n")
-
-    from src.twitch.bot import run
-    run()
+    # Launch GUI
+    from jarvis.gui.window import JarvisWindow
+    app = JarvisWindow()
+    app.mainloop()
 
 
 if __name__ == "__main__":
